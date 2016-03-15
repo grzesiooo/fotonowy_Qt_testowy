@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QThread>
+
+#include "generator.h"
 
 namespace Ui
 {
@@ -18,6 +21,20 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QThread *generatorThread;
+    Controller *controller;
+    double* randomNumbers;
+    unsigned long count;
+
+private slots:
+    void start();
+    void stop();
+    void takeNumber(double);
+    void draw();
+
+signals:
+    void startGenerator();
+
 };
 
 #endif // MAINWINDOW_H
