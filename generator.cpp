@@ -1,8 +1,10 @@
 #include <QDebug>
 
+#include <random>
+
 #include "generator.h"
 
-Controller::Controller(QObject *parent): QObject(parent)
+Controller::Controller(QObject *parent): QObject(parent), randomNumberGenerator(pcg_extras::seed_seq_from<std::random_device>())
 {
 /* do not use new here, as it will be allocated in the heap of the main thread, because the object is constructed before it is moved to thread */
 /* unless creating QObject and point this as the parent */
@@ -63,8 +65,14 @@ void Controller::start()
     running = true;
     mutex.unlock();
 
-    generator = new Rand();
-    //generator->seed(123UL);
+   std::normal_distribution<> distribution(0.0, 2.0);
+
+   /*switch (index)
+    {
+        case 1:
+            std::normal_distribution<> distribution(0.0, 2.0);
+        break;
+    }*/
 
     bool breakLoop;
 
@@ -77,10 +85,8 @@ void Controller::start()
         if(breakLoop)
             break;
 
-        emit newNumber(generator->generate());
+        emit newNumber(distribution(randomNumberGenerator));
     }
-
-    delete generator;
 
     mutex.lock();
     running = false;
@@ -88,27 +94,4 @@ void Controller::start()
     mutex.unlock();
 
     emit finished();
-}
-
-/* Generator */
-
-//Generator::Generator() {}
-
-Generator::~Generator() {}
-
-
-/* Generators */
-
-//Rand::Rand() {}
-
-Rand::~Rand() {}
-
-/*void Rand::seed(unsigned long iSeed)
-{
-    qDebug()<<"seed"<<iSeed;
-}*/
-
-double Rand::generate()
-{
-    return 3.14;
 }

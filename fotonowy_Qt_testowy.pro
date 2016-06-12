@@ -23,3 +23,5 @@ FORMS    += mainwindow.ui
 
 OTHER_FILES += \
     README.md
+
+QMAKE_CXXFLAGS += -std=c++11

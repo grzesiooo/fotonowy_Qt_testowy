@@ -4,26 +4,7 @@
 #include <QtCore>
 #include <QMutex>
 
-/* Abstract class providing interface for implemented generators */
-class Generator
-{
-public:
-    //Generator()
-    virtual ~Generator();
-
-    //virtual void seed(unsigned long) = 0;
-    virtual double generate() = 0;
-};
-
-class Rand : public Generator
-{
-public:
-    //Rand();
-    ~Rand();
-
-    //void seed(unsigned long);
-    double generate();
-};
+#include "pcg-cpp-0.98/include/pcg_random.hpp"
 
 
 /* Qt class providing interface between GUI and generator */
@@ -52,8 +33,13 @@ private:
     int index;
     unsigned long sample;
     QMutex mutex;
-    Generator* generator;
+    pcg32 randomNumberGenerator;
 
+    template< class DIST >
+    double generate( DIST &distribution )
+    {
+        return (double) distribution(randomNumberGenerator);
+    }
 };
 
 #endif // GENERATOR_H

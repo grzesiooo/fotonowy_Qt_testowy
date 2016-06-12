@@ -27,6 +27,7 @@ private:
     unsigned long count;
 
 private slots:
+    void changeParameters(int);
     void start();
     void stop();
     void takeNumber(double);

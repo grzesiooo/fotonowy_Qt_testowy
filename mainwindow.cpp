@@ -11,8 +11,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->StartButton, SIGNAL(clicked()), this, SLOT(start()));
     connect(ui->StopButton, SIGNAL(clicked()), this, SLOT(stop()));
 
+    connect(ui->DistributionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeParameters(int)));
+
     QRegExp positiveIntegers("[1-9][0-9]*");
-    ui->sampleSizeBox->setValidator(new QRegExpValidator(positiveIntegers));
+    ui->SampleSizeBox->setValidator(new QRegExpValidator(positiveIntegers));
+
 
     /* Setting up QThread and its connections */
     generatorThread = new QThread(this);
@@ -44,19 +47,62 @@ MainWindow::~MainWindow()
     generatorThread->quit();
     generatorThread->wait();
 
-    //delete randomNumbers;
     delete ui;
+}
+
+void MainWindow::changeParameters(int index)
+{
+    QRegExp positiveDoubles("\\d+\\.?\\d*");
+
+    switch (index)
+    {
+        case 0: //no distribution selected
+            ui->Parameter1Name->setText("");
+            ui->Parameter2Name->setText("");
+
+            ui->Parameter1Value->setText("");
+            ui->Parameter1Value->setEnabled(false);
+            ui->Parameter2Value->setText("");
+            ui->Parameter2Value->setEnabled(false);
+
+            break;
+        case 1: //normal distribution
+            ui->Parameter1Name->setText("sigma");
+            ui->Parameter2Name->setText("");
+
+            ui->Parameter1Value->setEnabled(true);
+            ui->Parameter1Value->setValidator(new QRegExpValidator(positiveDoubles));
+            ui->Parameter1Value->setText("1");
+            ui->Parameter2Value->setText("");
+            ui->Parameter2Value->setEnabled(false);
+
+        break;
+    default:
+        break;
+    }
 }
 
 void MainWindow::start()
 {
     this->stop();
-    delete[] randomNumbers;
 
-    controller->selectDistribution(ui->DistributionComboBox->currentIndex());
+    int index = ui->DistributionComboBox->currentIndex();
+    if(index==0)
+    {
+        qDebug()<<"no disrtibution selected";
+        //popup ""Please select distribution"
 
-    unsigned long size = ui->sampleSizeBox->text().toInt();
+        return;
+    }
+    else
+    {
+        controller->selectDistribution(index);
+    }
+
+    unsigned long size = ui->SampleSizeBox->text().toInt();
     controller->setSampleSize(size);
+
+    delete[] randomNumbers;
     randomNumbers = new double[size];
     count = 0;
 
@@ -86,4 +132,7 @@ void MainWindow::takeNumber(double number)
 void MainWindow::draw()
 {
     qDebug()<<"generation ended, will now draw from thread ";
+
+    //QPainter histogram = new QPainter(ui->HistogramWidget);
+
 }
