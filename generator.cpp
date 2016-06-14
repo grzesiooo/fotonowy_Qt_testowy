@@ -65,7 +65,7 @@ void Controller::start()
     running = true;
     mutex.unlock();
 
-   std::normal_distribution<> distribution(0.0, 2.0);
+   std::normal_distribution<> distribution(2.5, 1.0);
 
    /*switch (index)
     {

@@ -5,6 +5,7 @@
 #include <QThread>
 
 #include "generator.h"
+#include "qcustomplot/qcustomplot.h"
 
 namespace Ui
 {
@@ -23,8 +24,13 @@ private:
     Ui::MainWindow *ui;
     QThread *generatorThread;
     Controller *controller;
+
     double* randomNumbers;
     unsigned long count;
+    double minValue, maxValue;
+    int binNumber;
+
+    QCPBars *histogram;
 
 private slots:
     void changeParameters(int);

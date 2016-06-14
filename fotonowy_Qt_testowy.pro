@@ -14,10 +14,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    generator.cpp
+    generator.cpp \
+    qcustomplot/qcustomplot.cpp
 
 HEADERS  += mainwindow.h \
-    generator.h
+    generator.h \
+    pcg-cpp-0.98/include/pcg_extras.hpp \
+    pcg-cpp-0.98/include/pcg_random.hpp \
+    qcustomplot/qcustomplot.h
 
 FORMS    += mainwindow.ui
 

@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     /* Setting up GUI and its connections */
     ui->setupUi(this);
+    histogram = new QCPBars(ui->HistogramWidget->xAxis, ui->HistogramWidget->yAxis);
+    ui->HistogramWidget->addPlottable(histogram);
 
     connect(ui->StartButton, SIGNAL(clicked()), this, SLOT(start()));
     connect(ui->StopButton, SIGNAL(clicked()), this, SLOT(stop()));
@@ -102,9 +104,12 @@ void MainWindow::start()
     unsigned long size = ui->SampleSizeBox->text().toInt();
     controller->setSampleSize(size);
 
+    binNumber = 30;//TODO: read from box in gui
+
     delete[] randomNumbers;
     randomNumbers = new double[size];
-    count = 0;
+    count = 0UL;
+    minValue = maxValue = 0.0;
 
     emit startGenerator();
 }
@@ -126,6 +131,11 @@ void MainWindow::takeNumber(double number)
 {
     randomNumbers[count++] = number;
 
+    if(number < minValue)
+        minValue = number;
+    else if(number>maxValue)
+        maxValue = number;
+
     qDebug()<<"got number "<<number;
 }
 
@@ -133,6 +143,21 @@ void MainWindow::draw()
 {
     qDebug()<<"generation ended, will now draw from thread ";
 
-    //QPainter histogram = new QPainter(ui->HistogramWidget);
+    QVector<double> histogramXdata(binNumber, 0.0);
+    double binSize = (maxValue+0.00001 - minValue)/ static_cast<double>(binNumber);
+
+    for(unsigned long i = 0UL; i < count; ++i)
+        ++histogramXdata[static_cast<int>((randomNumbers[i] - minValue)/binSize)];
+
+    QVector<double> histogramYdata(binNumber);
+    for(int i = 0; i < binNumber; ++i)
+        histogramYdata[i] = minValue + (static_cast<double>(i) + 0.5)*binSize;
+
+
+    histogram->setData(histogramXdata, histogramYdata);
+
+    //ui->HistogramWidget->xAxis->setTickVector(histogramYdata);
+    //ui->HistogramWidget->xAxis->setTickVectorLabels(histogramYdata);
+    ui->HistogramWidget->replot();
 
 }
